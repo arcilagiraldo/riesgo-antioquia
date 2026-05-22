@@ -4463,7 +4463,8 @@ async function runIA(){
         btn.disabled=false;btn.textContent='🔍 Analizar con IA';iaRunning=false;
         addLog('ia-log',`❌ Error: ${e.message}`,'#ef4444');
         alert(`❌ No se pudo conectar con ${modeloInfo?.n}:\n\n${e.message}\n\n` +
-          (e.message.includes('401')||e.message.includes('invalid')?'La API key es incorrecta. Verifica que la copiaste bien.':
+          (e.message.includes('credit balance')||e.message.includes('too low')?'Tu cuenta de Anthropic no tiene créditos. Ve a anthropic.com/billing para recargar.':
+           e.message.includes('401')||e.message.includes('invalid')?'La API key es incorrecta. Verifica que la copiaste bien.':
            e.message.includes('429')?'Límite de uso alcanzado. Espera unos minutos o revisa tu plan.':
            e.message.includes('timeout')||e.message.includes('network')?'Sin conexión a internet o servicio no disponible.':
            'Revisa la API key y tu conexión a internet.')+'\n\nPuedes usar el Motor local (gratuito, sin key).');

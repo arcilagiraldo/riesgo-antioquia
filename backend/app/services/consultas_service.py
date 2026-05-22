@@ -3,8 +3,8 @@ Servicio de Consultas en Lenguaje Natural.
 Responde preguntas meteorológicas y de riesgo en español.
 No requiere API key — usa Open-Meteo y el motor de reglas local.
 """
-import aiohttp
 import asyncio
+import httpx
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
@@ -369,12 +369,11 @@ async def _fetch_pronostico_horario(lat: float, lon: float, dias: int = 2) -> Di
         f"&forecast_days={dias}"
         "&timezone=America%2FBogota"
     )
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, timeout=aiohttp.ClientTimeout(total=8)) as resp:
-            if resp.status != 200:
-                raise ConnectionError(f"Open-Meteo HTTP {resp.status}")
-            data = await resp.json()
-            return data.get("hourly", {})
+    async with httpx.AsyncClient(timeout=8) as client:
+        resp = await client.get(url)
+        if resp.status_code != 200:
+            raise ConnectionError(f"Open-Meteo HTTP {resp.status_code}")
+        return resp.json().get("hourly", {})
 
 
 def _proximo_aguacero(
