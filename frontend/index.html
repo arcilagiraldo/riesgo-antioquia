@@ -272,11 +272,46 @@ main{flex:1;display:flex;overflow:hidden}
   color:var(--text3);font-size:8px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .hbtn:hover{background:var(--bg4);color:var(--text)}
 .hbtn-act{background:var(--az)!important;color:#fff!important;border-color:var(--az)!important;font-weight:700}
+
+/* ── RESPONSIVE MÓVIL ─────────────────────────────────────────── */
+#mob-sb-toggle{display:none;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px 8px;flex-shrink:0}
+@media(max-width:768px){
+  body{height:100dvh;overflow:hidden}
+  header{padding:0 8px;height:44px;gap:6px}
+  .logo h1{font-size:11px}.logo small{display:none}
+  .logo-i{width:26px;height:26px;font-size:12px}
+  nav{gap:0}
+  .nb{font-size:11px;padding:6px 8px;min-height:36px}
+  .chip{display:none}
+  #mob-sb-toggle{display:block}
+  main{position:relative}
+  .sb{position:absolute;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform .25s;width:260px!important;min-width:260px!important;box-shadow:4px 0 20px rgba(0,0,0,.5)}
+  .sb.mob-open{transform:translateX(0)}
+  .ct{padding:8px}
+  .mets{grid-template-columns:repeat(2,1fr)!important}
+  .sg{grid-template-columns:repeat(2,1fr)!important}
+  .met .val{font-size:16px}
+  .met .lbl,.met .sub,.st,.sf{font-size:9px}
+  .sv{font-size:13px}
+  .card{padding:10px}
+  .ctit{font-size:10px}
+  .btn{font-size:12px;padding:9px 14px;min-height:40px}
+  .irg-n{font-size:32px}
+  #sirga-toasts{bottom:10px;right:10px;max-width:calc(100vw - 20px)}
+  .nb-drop-menu,.nbg-menu{min-width:160px}
+}
+@media(max-width:400px){
+  .mets{grid-template-columns:1fr 1fr!important}
+  .sg{grid-template-columns:1fr 1fr!important}
+  .nb{font-size:10px;padding:5px 6px}
+}
 </style>
 </head>
 <body>
 <div id="sirga-toasts"></div>
+<div id="mob-overlay" onclick="cerrarSbMob()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199"></div>
 <header>
+  <button id="mob-sb-toggle" onclick="toggleSbMob()">☰</button>
   <div class="logo">
     <div class="logo-i">🛰️</div>
     <div><h1>OMAIRA v4</h1><small>Colombia · Multi-departamental</small></div>
@@ -4928,6 +4963,21 @@ function wNext(){if(wp===5){document.getElementById('wiz').style.display='none';
 function wPrev(){if(wp>1){wp--;renderW();}}
 
 // ═══════════════════════════════════════════════════════════
+// ── SIDEBAR MÓVIL ────────────────────────────────────────────
+function toggleSbMob(){
+  const sb=document.querySelector('.sb');
+  const ov=document.getElementById('mob-overlay');
+  if(!sb)return;
+  const open=sb.classList.toggle('mob-open');
+  if(ov)ov.style.display=open?'block':'none';
+}
+function cerrarSbMob(){
+  const sb=document.querySelector('.sb');
+  const ov=document.getElementById('mob-overlay');
+  if(sb)sb.classList.remove('mob-open');
+  if(ov)ov.style.display='none';
+}
+
 // NAVEGACIÓN
 // ═══════════════════════════════════════════════════════════
 function go(p){
