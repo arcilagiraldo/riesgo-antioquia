@@ -4382,9 +4382,9 @@ async function enviarConsulta(){
   if(!pregunta)return;
   res.style.display='block';
   res.textContent='⏳ Consultando...';
-  const zona=zonaActual||'guatape';
+  const zonaQ=zona||'guatape';
   try{
-    const r=await fetch(`${API}/ia/consultar/${zona}?q=${encodeURIComponent(pregunta)}`);
+    const r=await fetch(`${API}/ia/consultar/${zonaQ}?q=${encodeURIComponent(pregunta)}`,{signal:AbortSignal.timeout(15000)});
     const d=await r.json();
     res.innerHTML=`<strong>🤖 OMAIRA:</strong> ${d.respuesta||d.detail||JSON.stringify(d)}`;
   }catch(e){
