@@ -1314,7 +1314,7 @@ main{flex:1;display:flex;overflow:hidden}
 // Siempre indicado claramente. Nunca ficticios sin advertencia.
 // ═══════════════════════════════════════════════════════════
 // En Railway la variable RAILWAY_PUBLIC_DOMAIN se inyecta automáticamente
-const API=(window.OMAIRA_API_URL||'http://localhost:8000')+'/api/v1';
+const API=(window.OMAIRA_API_URL||'https://invigorating-creativity-production-4a58.up.railway.app')+'/api/v1';
 const NC={muy_bajo:'#22c55e',bajo:'#84cc16',medio:'#f59e0b',alto:'#f97316',muy_alto:'#ef4444',critico:'#7f1d1d'};
 const NCV=n=>NC[n]||'#6b7280';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -5345,7 +5345,7 @@ async function verificarBackend(){
   // Intentar varias rutas conocidas del backend FastAPI
   // El servidor.py que usa el usuario tiene uvicorn en :8000
   // Las rutas dependen de cómo esté implementado el FastAPI del usuario
-  const base=window.OMAIRA_API_URL||'http://localhost:8000';
+  const base=window.OMAIRA_API_URL||'https://invigorating-creativity-production-4a58.up.railway.app';
   const rutas=[
     base+'/health',
     base+'/',
