@@ -216,10 +216,12 @@ async def consultar(solicitud: SolicitudConsulta):
 async def diagnostico_keys():
     """Verifica qué API keys están configuradas."""
     import os
+    todas = {k: "***" for k in os.environ if "GEMINI" in k.upper() or "ANTHROPIC" in k.upper() or "API" in k.upper()}
     return {
         "GEMINI_API_KEY": bool(os.getenv("GEMINI_API_KEY")),
         "ANTHROPIC_API_KEY": bool(os.getenv("ANTHROPIC_API_KEY")),
         "DATABASE_URL": bool(os.getenv("DATABASE_URL")),
+        "variables_con_api": list(todas.keys()),
     }
 
 
