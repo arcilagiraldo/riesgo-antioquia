@@ -1,15 +1,18 @@
 """
 Servicio de Consultas en Lenguaje Natural.
-Responde preguntas meteorológicas y de riesgo en español.
-No requiere API key — usa Open-Meteo y el motor de reglas local.
+Usa Gemini (gratis) si GEMINI_API_KEY está disponible, si no usa motor local.
 """
 import asyncio
 import httpx
+import os
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 from app.services.openmeteo_service import obtener_meteo_real, COORDS_ZONAS, nombre_zona
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 TZ_COL = ZoneInfo("America/Bogota")
 
@@ -29,6 +32,67 @@ DESCRIPCIONES_WMO = {
 }
 
 
+async def _responder_con_gemini(pregunta: str, zona_id: str, lat: float, lon: float, zona_nombre: str) -> Optional[Dict]:
+    """Usa Gemini para responder cualquier pregunta en lenguaje natural."""
+    if not GEMINI_API_KEY:
+        return None
+    try:
+        meteo = await obtener_meteo_real(zona_id, lat, lon)
+        try:
+            pronostico = await _fetch_pronostico_horario(lat, lon, dias=2)
+            tiempos = pronostico.get("time", [])
+            precips = pronostico.get("precipitation", [])
+            probs = pronostico.get("precipitation_probability", [])
+            prox_horas = []
+            ahora = datetime.now(TZ_COL)
+            idx = next((i for i, t in enumerate(tiempos) if t[:13] == ahora.strftime("%Y-%m-%dT%H")), 0)
+            for i in range(idx, min(idx + 12, len(tiempos))):
+                prox_horas.append(f"  {tiempos[i][11:16]}: {precips[i] if i<len(precips) else 0:.1f}mm ({probs[i] if i<len(probs) else 0}%)")
+            pronostico_txt = "\n".join(prox_horas[:8])
+        except Exception:
+            pronostico_txt = "no disponible"
+
+        contexto = f"""Eres OMAIRA, sistema experto en gestión de riesgo ambiental para Antioquia, Colombia.
+Respondes en español, de forma concisa y útil (máx 3 oraciones).
+
+ZONA: {zona_nombre} ({zona_id})
+FECHA/HORA: {datetime.now(TZ_COL).strftime('%Y-%m-%d %H:%M')} (hora Colombia)
+
+DATOS METEOROLÓGICOS ACTUALES (Open-Meteo):
+- Temperatura: {meteo.get('temperatura_c', 'N/D')}°C
+- Humedad relativa: {meteo.get('humedad_relativa', 'N/D')}%
+- Precipitación actual: {meteo.get('precipitacion_actual_mm', 0)} mm/h
+- Lluvia acumulada 24h: {meteo.get('lluvia_24h_mm', 0):.1f} mm
+- Viento: {meteo.get('velocidad_viento_ms', 0)} m/s
+- Condición: {DESCRIPCIONES_WMO.get(meteo.get('codigo_clima'), 'sin datos')}
+- Humedad suelo: {meteo.get('humedad_suelo', 0)*100:.0f}%
+
+PRONÓSTICO PRÓXIMAS HORAS (precipitación/probabilidad):
+{pronostico_txt}
+
+Responde esta pregunta del usuario de forma directa y útil:
+{pregunta}"""
+
+        payload = {"contents": [{"parts": [{"text": contexto}]}]}
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.post(
+                f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+                json=payload,
+                headers={"Content-Type": "application/json"},
+            )
+            if r.status_code != 200:
+                return None
+            data = r.json()
+            texto = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            return {
+                "pregunta_tipo": "gemini",
+                "respuesta": texto,
+                "datos": {"fuente": "Gemini + Open-Meteo", "zona": zona_nombre}
+            }
+    except Exception:
+        return None
+
+
 async def responder_consulta(
     pregunta: str,
     zona_id: str,
@@ -44,7 +108,13 @@ async def responder_consulta(
     pregunta_lower = pregunta.lower().strip()
     zona_nombre = nombre_zona(zona_id)
 
-    # Clasificación de la pregunta
+    # Gemini como primera opción si hay API key
+    if GEMINI_API_KEY:
+        resultado = await _responder_con_gemini(pregunta, zona_id, lat, lon, zona_nombre)
+        if resultado:
+            return resultado
+
+    # Clasificación local como fallback
     if _es_pregunta_escampar(pregunta_lower):
         return await _cuando_escampa(zona_id, lat, lon, zona_nombre)
     elif _es_pregunta_va_a_llover(pregunta_lower):
