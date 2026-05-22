@@ -215,13 +215,26 @@ async def consultar(solicitud: SolicitudConsulta):
 @router_ia.get("/diagnostico-keys")
 async def diagnostico_keys():
     """Verifica qué API keys están configuradas."""
-    import os
+    import os, httpx
     todas = {k: "***" for k in os.environ if "GEMINI" in k.upper() or "ANTHROPIC" in k.upper() or "API" in k.upper()}
+    gemini_key = os.getenv("GEMINI_API_KEY", "")
+    modelos = []
+    if gemini_key:
+        try:
+            async with httpx.AsyncClient(timeout=5) as client:
+                r = await client.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={gemini_key}")
+                if r.status_code == 200:
+                    modelos = [m["name"] for m in r.json().get("models", []) if "generateContent" in m.get("supportedGenerationMethods", [])]
+                else:
+                    modelos = [f"error {r.status_code}: {r.text[:100]}"]
+        except Exception as e:
+            modelos = [f"exception: {e}"]
     return {
-        "GEMINI_API_KEY": bool(os.getenv("GEMINI_API_KEY")),
+        "GEMINI_API_KEY": bool(gemini_key),
         "ANTHROPIC_API_KEY": bool(os.getenv("ANTHROPIC_API_KEY")),
         "DATABASE_URL": bool(os.getenv("DATABASE_URL")),
         "variables_con_api": list(todas.keys()),
+        "gemini_modelos_disponibles": modelos,
     }
 
 
