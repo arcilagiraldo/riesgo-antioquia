@@ -5,9 +5,12 @@ Usa Gemini (gratis) si GEMINI_API_KEY está disponible, si no usa motor local.
 import asyncio
 import httpx
 import os
+import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
+
+logger = logging.getLogger(__name__)
 
 from app.services.openmeteo_service import obtener_meteo_real, COORDS_ZONAS, nombre_zona
 
@@ -89,7 +92,8 @@ Responde esta pregunta del usuario de forma directa y útil:
                 "respuesta": texto,
                 "datos": {"fuente": "Gemini + Open-Meteo", "zona": zona_nombre}
             }
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Gemini error: {type(e).__name__}: {e}")
         return None
 
 
