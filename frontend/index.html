@@ -616,7 +616,7 @@ main{flex:1;display:flex;overflow:hidden}
     <div style="margin-top:10px;border-top:1px solid var(--b2);padding-top:10px">
       <div class="ctit" style="margin-bottom:6px">Pregunta en lenguaje natural</div>
       <div style="display:flex;gap:6px">
-        <input id="consulta-input" type="text" placeholder="Ej: ¿cuándo va a escampar? ¿va a llover hoy? ¿qué temperatura hace?" style="flex:1;background:var(--b2);border:1px solid var(--b3);border-radius:6px;padding:7px 10px;color:var(--text1);font-size:11px;outline:none"/>
+        <input id="consulta-input" type="text" placeholder="Ej: ¿cuándo va a escampar? ¿va a llover hoy? ¿qué temperatura hace?" onkeydown="if(event.key==='Enter')enviarConsulta()" style="flex:1;background:var(--b2);border:1px solid var(--b3);border-radius:6px;padding:7px 10px;color:var(--text1);font-size:11px;outline:none"/>
         <button class="btn btpu" onclick="enviarConsulta()" style="font-size:11px;padding:7px 14px;white-space:nowrap">💬 Preguntar</button>
       </div>
       <div id="consulta-res" style="display:none;margin-top:8px;background:var(--b2);border-radius:6px;padding:10px;font-size:11px;color:var(--text1);line-height:1.5"></div>
