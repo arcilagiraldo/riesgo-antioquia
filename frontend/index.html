@@ -4384,7 +4384,7 @@ async function enviarConsulta(){
   res.textContent='⏳ Consultando...';
   const zona=zonaActual||'guatape';
   try{
-    const r=await fetch(`${API}/ia/consultar?q=${encodeURIComponent(pregunta)}&zona_id=${zona}`);
+    const r=await fetch(`${API}/ia/consultar/${zona}?q=${encodeURIComponent(pregunta)}`);
     const d=await r.json();
     res.innerHTML=`<strong>🤖 OMAIRA:</strong> ${d.respuesta||d.detail||JSON.stringify(d)}`;
   }catch(e){
