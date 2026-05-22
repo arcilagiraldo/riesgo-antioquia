@@ -37,7 +37,8 @@ DESCRIPCIONES_WMO = {
 
 async def _responder_con_gemini(pregunta: str, zona_id: str, lat: float, lon: float, zona_nombre: str) -> Optional[Dict]:
     """Usa Gemini para responder cualquier pregunta en lenguaje natural."""
-    if not GEMINI_API_KEY:
+    api_key = os.getenv("GEMINI_API_KEY", "") or GEMINI_API_KEY
+    if not api_key:
         return None
     try:
         meteo = await obtener_meteo_real(zona_id, lat, lon)
@@ -79,7 +80,7 @@ Responde esta pregunta del usuario de forma directa y útil:
         payload = {"contents": [{"parts": [{"text": contexto}]}]}
         async with httpx.AsyncClient(timeout=10) as client:
             r = await client.post(
-                f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+                f"{GEMINI_URL}?key={api_key}",
                 json=payload,
                 headers={"Content-Type": "application/json"},
             )
@@ -113,7 +114,7 @@ async def responder_consulta(
     zona_nombre = nombre_zona(zona_id)
 
     # Gemini como primera opción si hay API key
-    if GEMINI_API_KEY:
+    if os.getenv("GEMINI_API_KEY") or GEMINI_API_KEY:
         resultado = await _responder_con_gemini(pregunta, zona_id, lat, lon, zona_nombre)
         if resultado:
             return resultado

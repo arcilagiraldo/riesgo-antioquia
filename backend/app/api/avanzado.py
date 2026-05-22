@@ -212,19 +212,19 @@ async def consultar(solicitud: SolicitudConsulta):
     }
 
 
-@router_ia.get("/consultar/{zona_id}")
-async def consultar_get(zona_id: str, q: str):
-    """Versión GET para consultas rápidas desde el navegador. Ej: ?q=cuando+escampa"""
-    solicitud = SolicitudConsulta(pregunta=q, zona_id=zona_id)
-    return await consultar(solicitud)
-
-
 @router_ia.get("/diagnostico-keys")
 async def diagnostico_keys():
-    """Verifica qué API keys están configuradas (solo muestra si están presentes, no el valor)."""
+    """Verifica qué API keys están configuradas."""
     import os
     return {
         "GEMINI_API_KEY": bool(os.getenv("GEMINI_API_KEY")),
         "ANTHROPIC_API_KEY": bool(os.getenv("ANTHROPIC_API_KEY")),
         "DATABASE_URL": bool(os.getenv("DATABASE_URL")),
     }
+
+
+@router_ia.get("/consultar/{zona_id}")
+async def consultar_get(zona_id: str, q: str):
+    """Versión GET para consultas rápidas desde el navegador. Ej: ?q=cuando+escampa"""
+    solicitud = SolicitudConsulta(pregunta=q, zona_id=zona_id)
+    return await consultar(solicitud)
