@@ -313,10 +313,41 @@ main{flex:1;display:flex;overflow:hidden}
   .sg{grid-template-columns:1fr 1fr!important}
   .nb{font-size:10px;padding:5px 6px}
 }
+/* ── AUTH ──────────────────────────────────────────────── */
+#auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:99999;display:none;align-items:center;justify-content:center}
+.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px 28px;width:380px;max-width:92vw;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.7)}
+.auth-logo{width:56px;height:56px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:13px;display:grid;place-items:center;font-size:26px;margin:0 auto 14px}
+.auth-title{font-size:22px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
+.auth-sub{font-size:11px;color:var(--text3);margin-bottom:24px;line-height:1.6}
+.auth-err{font-size:10px;color:#ef4444;margin-top:10px;min-height:14px}
+#user-btn{display:none;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:3px 8px 3px 4px;cursor:pointer;color:var(--text2);font-size:9px;flex-shrink:0;position:relative}
+#user-btn:hover{background:var(--bg4)}
+#user-foto{width:22px;height:22px;border-radius:50%;object-fit:cover}
+.user-drop{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:6px;min-width:190px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.user-drop.open{display:block}
+.user-drop-info{padding:6px 8px 8px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.user-drop-name{font-size:10px;font-weight:700}
+.user-drop-email{font-size:8px;color:var(--text3);margin-top:1px}
+.user-drop-btn{display:flex;align-items:center;gap:6px;width:100%;padding:6px 8px;background:none;border:none;color:#ef4444;font-size:9px;cursor:pointer;border-radius:5px;transition:background .15s;text-align:left}
+.user-drop-btn:hover{background:rgba(239,68,68,.08)}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div id="sirga-toasts"></div>
+
+<!-- ── AUTH OVERLAY ── -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">🛰️</div>
+    <div class="auth-title">OMAIRA v4</div>
+    <div class="auth-sub">Gestión inteligente de riesgos<br>Antioquia · Colombia</div>
+    <div id="g-signin-btn" style="display:flex;justify-content:center;min-height:44px"></div>
+    <div id="auth-loading" style="display:none;font-size:10px;color:var(--text3);margin-top:10px">Verificando acceso…</div>
+    <div id="auth-err" class="auth-err"></div>
+  </div>
+</div>
+
 <div id="mob-overlay" onclick="cerrarSbMob()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199"></div>
 <header>
   <button id="mob-sb-toggle" onclick="toggleSbMob()">☰</button>
@@ -360,6 +391,18 @@ main{flex:1;display:flex;overflow:hidden}
     <button onclick="showWiz()" style="margin-left:6px;padding:4px 10px;border-radius:5px;background:var(--az);color:#fff;border:none;font-size:10px;font-weight:600;cursor:pointer;flex-shrink:0">+ Zona</button>
   </nav>
   <div id="file-warning" style="display:none;font-size:8px;padding:3px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:4px;color:var(--a);flex-shrink:0">⚠️ file://</div><div id="backend-badge" style="display:none;font-size:8px;padding:3px 8px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:4px;color:var(--pu);flex-shrink:0">⚙️ Backend</div>
+  <div id="user-btn" onclick="toggleUserDrop()">
+    <img id="user-foto" src="" alt="" style="display:none">
+    <span id="user-nombre"></span>
+    <span style="color:var(--text3);font-size:8px">▾</span>
+    <div class="user-drop" id="user-drop" onclick="event.stopPropagation()">
+      <div class="user-drop-info">
+        <div class="user-drop-name" id="user-name-drop"></div>
+        <div class="user-drop-email" id="user-email-drop"></div>
+      </div>
+      <button class="user-drop-btn" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </div>
 <div class="chip chip-sim" id="chip">⏳ Iniciando…</div>
 </header>
 <main>
@@ -5314,6 +5357,9 @@ actualizarDatos();
 // Actualizar cada 15 minutos con datos reales
 setInterval(()=>actualizarDatos(),15*60*1000);
 
+// Verificar autenticación
+checkAuth();
+
 // ═══════════════════════════════════════════════════════════
 // UI REPORTE CIUDADANO
 // ═══════════════════════════════════════════════════════════
@@ -6662,6 +6708,98 @@ function toast(msg, tipo='info', duracion=4000){
   cont.appendChild(el);
   if(duracion > 0) setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),350); }, duracion);
 }
+
+// ═══════════════════════════════════════════════════════════
+// AUTENTICACIÓN Google OAuth
+// ═══════════════════════════════════════════════════════════
+const LS_AUTH = 'omaira_auth_v1';
+const AUTH_TTL = 8 * 60 * 60 * 1000;
+const GOOGLE_CLIENT_ID = '833031313995-1ogdqcrfsl02557fbjbcqi1ehvee9l4v.apps.googleusercontent.com';
+
+function onGoogleLibraryLoad() {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: false,
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('g-signin-btn'),
+    { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', width: 280, locale: 'es' }
+  );
+}
+
+function checkAuth() {
+  try {
+    const raw = localStorage.getItem(LS_AUTH);
+    if (raw) {
+      const sess = JSON.parse(raw);
+      if (Date.now() < sess.exp) { loginSuccess(sess, false); return; }
+      localStorage.removeItem(LS_AUTH);
+    }
+  } catch(e) {}
+  document.getElementById('auth-overlay').style.display = 'flex';
+  if (window.google && google.accounts) onGoogleLibraryLoad();
+}
+
+async function handleGoogleCredential(response) {
+  document.getElementById('auth-err').textContent = '';
+  document.getElementById('auth-loading').style.display = 'block';
+  try {
+    const r = await fetch(API + '/auth/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential }),
+    });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      document.getElementById('auth-err').textContent =
+        r.status === 403 ? 'Acceso no autorizado para este email.' : (d.detail || 'Error de autenticación.');
+      return;
+    }
+    const user = await r.json();
+    const sess = { ...user, exp: Date.now() + AUTH_TTL };
+    localStorage.setItem(LS_AUTH, JSON.stringify(sess));
+    loginSuccess(sess, true);
+  } catch(e) {
+    document.getElementById('auth-err').textContent = 'Error de conexión. Intenta de nuevo.';
+  } finally {
+    document.getElementById('auth-loading').style.display = 'none';
+  }
+}
+
+function loginSuccess(sess, isNew) {
+  document.getElementById('auth-overlay').style.display = 'none';
+  const btn = document.getElementById('user-btn');
+  btn.style.display = 'flex';
+  const foto = document.getElementById('user-foto');
+  const nombreEl = document.getElementById('user-nombre');
+  if (sess.foto) { foto.src = sess.foto; foto.style.display = ''; }
+  else foto.style.display = 'none';
+  const displayName = (sess.nombre || sess.email.split('@')[0]).split(' ')[0];
+  nombreEl.textContent = displayName;
+  document.getElementById('user-name-drop').textContent = sess.nombre || sess.email;
+  document.getElementById('user-email-drop').textContent = sess.email;
+  if (isNew) toast('Bienvenido, ' + displayName, 'ok');
+}
+
+function logout() {
+  localStorage.removeItem(LS_AUTH);
+  document.getElementById('user-btn').style.display = 'none';
+  document.getElementById('user-drop').classList.remove('open');
+  if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
+  document.getElementById('auth-err').textContent = '';
+  document.getElementById('auth-overlay').style.display = 'flex';
+  if (window.google && google.accounts) onGoogleLibraryLoad();
+}
+
+function toggleUserDrop() {
+  document.getElementById('user-drop').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('user-btn');
+  if (btn && !btn.contains(e.target)) document.getElementById('user-drop').classList.remove('open');
+});
 
 // Sobrescribir alert global para que use toast
 const _alertOriginal = window.alert;
