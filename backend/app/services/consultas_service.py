@@ -85,7 +85,8 @@ Responde esta pregunta del usuario de forma directa y útil:
                 headers={"Content-Type": "application/json"},
             )
             if r.status_code != 200:
-                return {"pregunta_tipo": "gemini_error", "respuesta": f"Gemini HTTP {r.status_code}: {r.text[:300]}", "datos": {}}
+                logger.warning(f"Gemini HTTP {r.status_code}")
+                return None  # fallback al motor local
             data = r.json()
             texto = data["candidates"][0]["content"]["parts"][0]["text"].strip()
             return {
@@ -123,7 +124,7 @@ async def responder_consulta(
         resultado = await _responder_con_gemini(pregunta, zona_id, lat, lon, zona_nombre)
         if resultado:
             return resultado
-        # Gemini no disponible — continúa con motor local
+        pass  # Gemini no disponible — continúa con motor local
 
     # Clasificación local como fallback
     if _es_pregunta_escampar(pregunta_lower):
