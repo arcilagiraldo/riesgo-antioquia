@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 from app.services.openmeteo_service import obtener_meteo_real, COORDS_ZONAS, nombre_zona
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent"
 
 TZ_COL = ZoneInfo("America/Bogota")
 
@@ -78,7 +78,7 @@ Responde esta pregunta del usuario de forma directa y útil:
 {pregunta}"""
 
         payload = {"contents": [{"parts": [{"text": contexto}]}]}
-        async with httpx.AsyncClient(timeout=10) as client:
+        async with httpx.AsyncClient(timeout=20) as client:
             r = await client.post(
                 f"{GEMINI_URL}?key={api_key}",
                 json=payload,
