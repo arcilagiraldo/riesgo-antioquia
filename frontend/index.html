@@ -8269,8 +8269,46 @@ function eliminarFuenteCustom(idx){
     <button onclick="go('prediccion');mobNav(this)"><span class="icon">📈</span>Predicción</button>
     <button onclick="go('alertas');mobNav(this)"><span class="icon">🚨</span>Alertas</button>
     <button onclick="go('ia-analisis');mobNav(this)"><span class="icon">🤖</span>IA</button>
-    <button onclick="toggleSbMob()"><span class="icon">☰</span>Más</button>
+    <button onclick="abrirNavMob()"><span class="icon">☰</span>Más</button>
   </div>
 </nav>
+
+<!-- Menú de navegación completo para móvil -->
+<div id="mob-nav-menu" onclick="cerrarNavMob()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000">
+  <div onclick="event.stopPropagation()" style="position:absolute;bottom:64px;left:0;right:0;background:var(--bg2);border-radius:14px 14px 0 0;padding:16px 12px 20px;max-height:72vh;overflow-y:auto">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 14px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 4px">
+      <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px">Todas las pantallas</span>
+      <button onclick="cerrarNavMob()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 4px">✕</button>
+    </div>
+
+    <div style="font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding:0 2px">Principal</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px">
+      <button onclick="go('capas');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">🌦️<span>Capas</span></button>
+      <button onclick="go('movilidad');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">🚗<span>Movilidad</span></button>
+    </div>
+
+    <div style="font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding:0 2px">Análisis técnico</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px">
+      <button onclick="go('motor');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">🔬<span>Motor</span></button>
+      <button onclick="go('cred');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">🎯<span>Credibilidad</span></button>
+      <button onclick="go('motor-ia');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">⚙️<span>IA Motor</span></button>
+      <button onclick="go('db');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">🗄️<span>Base datos</span></button>
+    </div>
+
+    <div style="font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding:0 2px">Sistema</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <button onclick="go('fuentes');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">🔌<span>Fuentes</span></button>
+      <button onclick="go('notif');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">🔔<span>Notificaciones</span></button>
+      <button onclick="go('config');cerrarNavMob()" style="background:var(--az);border:1px solid var(--az);border-radius:8px;padding:10px 8px;color:#fff;font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:600">⚙️<span>Configuración</span></button>
+      <button onclick="go('acerca');cerrarNavMob()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;color:var(--text);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">ℹ️<span>Acerca de</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+function abrirNavMob(){document.getElementById('mob-nav-menu').style.display='block';}
+function cerrarNavMob(){document.getElementById('mob-nav-menu').style.display='none';}
+</script>
 </body>
 </html>
