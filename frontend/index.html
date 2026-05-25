@@ -1242,7 +1242,7 @@ main{flex:1;display:flex;overflow:hidden}
       <tr><td><strong>NOAA ONI (ENSO)</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Índice Oscilación Sur real: fase El Niño / La Niña / Neutro → amplificador climático F</td><td>Factor climático global</td></tr>
       <tr><td><strong>OpenAQ — Calidad Aire</strong></td><td><span class="real-badge" style="background:#1e40af20;color:#1e40af">🔑 Key gratis</span></td><td>PM2.5, PM10, NO₂ de estaciones reales en Medellín/Antioquia → sensor ICA calidad aire</td><td>Calidad del aire</td></tr>
       <tr><td><strong>GDACS (ONU) Alertas</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Alertas multi-amenaza ONU nivel naranja/rojo en Colombia → inyectadas en panel Alertas</td><td>Alerta internacional</td></tr>
-      <tr><td><strong>ReliefWeb (OCHA) Colombia</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Emergencias humanitarias activas en Colombia curadas por OCHA/ONU → panel Alertas</td><td>Contexto humanitario</td></tr>
+      <tr><td><strong>ReliefWeb (OCHA) Colombia</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Reportes humanitarios Colombia últimos 30 días (RSS). Alerta solo si título dice emergencia/desastre activo</td><td>Contexto humanitario</td></tr>
       <tr><td><strong>Aerocivil METAR</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Visibilidad y viento reales aeropuertos SKRG (Rionegro) y SKMD (Olaya Herrera) → niebla aeronáutica</td><td>Meteorología aeroportuaria</td></tr>
       <tr style="background:rgba(59,130,246,.04)"><td colspan="4" style="font-size:8px;font-weight:700;color:var(--az);padding:4px 8px;letter-spacing:.5px">▶ CLAVE GRATUITA — registrarse en sitio web (5 minutos)</td></tr>
       <tr><td><strong>TomTom Traffic</strong></td><td><span class="real-badge real-sim">Key gratuita</span></td><td>Velocidad vías, nivel flujo, incidentes → estado vías principales Antioquia</td><td>Movilidad y emergencias</td></tr>
@@ -1727,9 +1727,9 @@ const FUENTES_CONF=[
   {id:'GDACS',n:'GDACS — Alertas Multi-amenaza ONU',ico:'🌐',estado:'ok',tipo:'SIN_KEY',
    desc:'Sistema global de alertas OCHA/ONU: inundaciones, sismos, ciclones, sequías. Cobertura Colombia tiempo real con nivel verde/naranja/rojo.',
    instrucciones:'Automática — sin costo ni registro. Sistema oficial de coordinación de desastres de la ONU.'},
-  {id:'RELIEFWEB',n:'ReliefWeb — Alertas Humanitarias Colombia',ico:'🆘',estado:'ok',tipo:'SIN_KEY',
-   desc:'Alertas y reportes de desastres para Colombia curados por OCHA. Contexto humanitario oficial con información de afectados.',
-   instrucciones:'Automática — sin costo ni registro. API oficial ReliefWeb/OCHA de la ONU.'},
+  {id:'RELIEFWEB',n:'ReliefWeb — Reportes Humanitarios Colombia',ico:'🆘',estado:'ok',tipo:'SIN_KEY',
+   desc:'Reportes y alertas humanitarias para Colombia curados por OCHA. Últimos 30 días. Alerta automática solo si el título menciona emergencia/desastre activo.',
+   instrucciones:'Automática — sin costo ni registro. Feed RSS oficial reliefweb.int/colombia (API v1 depreciada en 2025).'},
   {id:'METAR',n:'Aerocivil — METAR Aeropuertos Antioquia',ico:'✈️',estado:'ok',tipo:'SIN_KEY',
    desc:'Condición meteorológica real en aeropuertos SKRG (Rionegro) y SKMD (Olaya Herrera): visibilidad, viento, temperatura, presión altimétrica.',
    instrucciones:'Automática — sin costo ni registro. METAR internacional aeropuertos colombianos vía aviationweather.gov.'},
@@ -3583,21 +3583,24 @@ async function apiGDACS(){
 }
 
 async function apiReliefWeb(){
-  const body=JSON.stringify({filter:{field:'country.iso3',value:'COL'},
-    fields:{include:['name','status','type.name','glide','date']},limit:5,sort:['date:desc']});
-  const urls=['http://localhost:8080/proxy/reliefweb','https://api.reliefweb.int/v1/disasters?appname=omaira'];
+  // API v1 POST depreciada (410 Gone) — usar RSS feed público de ReliefWeb
+  const rssUrl='https://reliefweb.int/updates/rss.xml?source=reliefweb&type=disaster&country=Colombia&limit=10';
+  const urls=['http://localhost:8080/proxy/reliefweb-rss',rssUrl,`https://corsproxy.io/?${encodeURIComponent(rssUrl)}`];
+  const cutoff=Date.now()-30*86400000; // solo últimos 30 días
   for(const u of urls){
     try{
-      const r=await fetch(u,{method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body,signal:AbortSignal.timeout(10000)});
+      const r=await fetch(u,{signal:AbortSignal.timeout(10000)});
       if(!r.ok)continue;
-      const d=await r.json();
-      const items=(d.data||[]).map(x=>({
-        nombre:x.fields?.name||'Desastre Colombia',estado:x.fields?.status||'ongoing',
-        tipo:x.fields?.type?.[0]?.name||'Desastre',glide:x.fields?.glide||'',
-        fecha:x.fields?.date?.original||''}));
-      return{total:d.totalCount||items.length,items};
+      const txt=await r.text();
+      const itmRaw=txt.match(/<item>[\s\S]*?<\/item>/g)||[];
+      if(!itmRaw.length)continue;
+      const items=itmRaw.map(i=>{
+        const nombre=(i.match(/<title>([^<]+)/)||[])[1]||'';
+        const fecha=(i.match(/<pubDate>([^<]+)/)||[])[1]||'';
+        const ts=fecha?new Date(fecha).getTime():0;
+        return{nombre,estado:'published',tipo:'Humanitarian',glide:'',fecha:fecha.slice(0,16),ts};
+      }).filter(x=>x.nombre.toLowerCase().includes('colombia')&&x.ts>cutoff);
+      return{total:items.length,items:items.slice(0,5)};
     }catch(e){}
   }
   return null;
@@ -3617,7 +3620,8 @@ async function apiAerocivil(){
       visib_m:metar.visib!=null?+Math.min(20000,parseFloat(metar.visib)*1609.34).toFixed(0):null,
       viento_ms:metar.wspd!=null?+(metar.wspd*0.5144).toFixed(1):null,
       temp:metar.temp!=null?+parseFloat(metar.temp).toFixed(1):null,
-      presion:metar.altim!=null?+(metar.altim*33.8639).toFixed(1):null,
+      // altim > 200 → ya en hPa (estaciones Q, internacionales); < 35 → inHg → hPa
+      presion:metar.altim!=null?(metar.altim>200?+parseFloat(metar.altim).toFixed(1):+(metar.altim*33.8639).toFixed(1)):null,
       condicion:metar.wxString||'',nubes:metar.clouds||[],raw:metar.rawOb||''};
   }catch(e){return null;}
 }
@@ -3933,13 +3937,14 @@ async function cargarDatos(z){
           acciones:['Revisar portal GDACS','Activar protocolo de respuesta'],fuente:'GDACS'});
     });
   }
-  // Alertas ReliefWeb activas en Colombia
+  // Alertas ReliefWeb — solo si el título menciona emergencia real (no evaluaciones/reportes)
+  const RW_EMERG=/emergencia|emergency|inundaci|flood|terremoto|earthquake|deslizamiento|landslide|alerta|alert|desastre|disaster/i;
   if(dr.reliefweb?.items?.length){
-    dr.reliefweb.items.filter(ev=>ev.estado==='ongoing').slice(0,2).forEach(ev=>{
-      if(!irg.alertas.find(x=>x.tipo==='RW-'+ev.tipo))
-        irg.alertas.push({tipo:'RW-'+ev.tipo,nivel:'amarillo',
-          descripcion:`🆘 ReliefWeb: ${ev.nombre} (${ev.tipo})`,
-          acciones:['Consultar ReliefWeb para detalles'],fuente:'ReliefWeb'});
+    dr.reliefweb.items.filter(ev=>RW_EMERG.test(ev.nombre)).slice(0,2).forEach(ev=>{
+      if(!irg.alertas.find(x=>x.tipo==='RW-H'))
+        irg.alertas.push({tipo:'RW-H',nivel:'amarillo',
+          descripcion:`🆘 ReliefWeb Colombia: ${ev.nombre.slice(0,80)}`,
+          acciones:['Consultar reliefweb.int/colombia'],fuente:'ReliefWeb'});
     });
   }
   return{zona:z,muni:m.n,lat:m.lat,lon:m.lon,sub:m.sub,pop:m.pop,alt:m.alt,
