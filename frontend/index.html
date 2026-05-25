@@ -1683,6 +1683,46 @@ const FUENTES_CONF=[
      {id:'arcgis_token',lbl:'Token ArcGIS (opcional)',tipo:'password',ph:'Token ArcGIS Online Gobernación (solo capas privadas)'},
    ],
    instrucciones:'ACCESO GRATUITO — sin convenio:\n  1. Ir a geodatos-gobantioquia.opendata.arcgis.com\n  2. Buscar "riesgo", "amenaza" o "DAGRAN"\n  3. Abrir el dataset que necesites\n  4. Clic en botón "API" → copiar URL del Feature Service\n  5. Pegar esa URL en el campo de abajo\n\n⚠️ Las URLs exactas de los Feature Services\n   cambian con cada versión del portal.\n   Siempre obtenerlas directamente desde el portal.\n\nCapas disponibles (verificar en portal):\n  • Zonas de amenaza por inundación/deslizamiento\n  • Inventario histórico de desastres Antioquia\n  • Áreas de retiro hídrico\n  • Son datos HISTÓRICOS, no tiempo real'},
+  // ── NUEVAS FUENTES ──────────────────────────────────────────
+  {id:'OPENAQ',n:'OpenAQ — Calidad del Aire',ico:'💨',estado:'ok',tipo:'SIN_KEY',
+   desc:'PM2.5, PM10, NO₂ de estaciones reales en Medellín/Antioquia. Complementa SIATA cuando no hay convenio institucional.',
+   instrucciones:'Automática — sin costo ni registro. Red global de calidad del aire de acceso público.'},
+  {id:'IRIS_SGC',n:'IRIS/SGC — Sismos Colombia (M≥1.5)',ico:'📡',estado:'ok',tipo:'SIN_KEY',
+   desc:'Catálogo sísmico IRIS con eventos M≥1.5 en Antioquia. Detecta sismos más pequeños que USGS solo (M≥2.0) para mejor acumulación energética 72h.',
+   instrucciones:'Automática — sin costo ni registro. IRIS agrega datos de la red sísmica colombiana SGC.'},
+  {id:'GDACS',n:'GDACS — Alertas Multi-amenaza ONU',ico:'🌐',estado:'ok',tipo:'SIN_KEY',
+   desc:'Sistema global de alertas OCHA/ONU: inundaciones, sismos, ciclones, sequías. Cobertura Colombia tiempo real con nivel verde/naranja/rojo.',
+   instrucciones:'Automática — sin costo ni registro. Sistema oficial de coordinación de desastres de la ONU.'},
+  {id:'RELIEFWEB',n:'ReliefWeb — Alertas Humanitarias Colombia',ico:'🆘',estado:'ok',tipo:'SIN_KEY',
+   desc:'Alertas y reportes de desastres para Colombia curados por OCHA. Contexto humanitario oficial con información de afectados.',
+   instrucciones:'Automática — sin costo ni registro. API oficial ReliefWeb/OCHA de la ONU.'},
+  {id:'METAR',n:'Aerocivil — METAR Aeropuertos Antioquia',ico:'✈️',estado:'ok',tipo:'SIN_KEY',
+   desc:'Condición meteorológica real en aeropuertos SKRG (Rionegro) y SKMD (Olaya Herrera): visibilidad, viento, temperatura, presión altimétrica.',
+   instrucciones:'Automática — sin costo ni registro. METAR internacional aeropuertos colombianos vía aviationweather.gov.'},
+  {id:'WAQI',n:'WAQI — Índice Mundial Calidad del Aire',ico:'🌫️',estado:'nd',tipo:'KEY_GRATIS',
+   desc:'AQI estandarizado, PM2.5, advertencias de salud de estaciones urbanas en Medellín/Antioquia. Complementa OpenAQ con más estaciones.',
+   key_label:'WAQI API Token',url:'https://aqicn.org/data-platform/token/',
+   instrucciones:'1. aqicn.org/data-platform/token\n2. Registro gratuito con email\n3. Llega token por email\n4. Pegar aquí y probar\nPlan gratuito: ilimitado para uso no comercial'},
+  {id:'DANE_API',n:'DANE — Vulnerabilidad Social por Municipio',ico:'👥',estado:'nd',tipo:'KEY_GRATIS',
+   desc:'Índice de Pobreza Multidimensional (IPM) y población por municipio de Antioquia. Mejora el componente E (exposición) del IRG con datos socioeconómicos reales.',
+   key_label:'App Token datos.gov.co (mismo de INVIAS)',url:'https://datos.gov.co',
+   instrucciones:'Usa el mismo App Token de datos.gov.co que usas para INVIAS:\n1. datos.gov.co → Registrarse\n2. Mi perfil → App Tokens → Crear (o reutilizar INVIAS)\n3. Pegar aquí y probar'},
+  {id:'UNGRD_EVENTOS',n:'UNGRD — Emergencias Antioquia',ico:'🏛️',estado:'nd',tipo:'KEY_GRATIS',
+   desc:'Registro nacional UNGRD de emergencias y desastres en Antioquia últimos 30 días. Calibra el IRG con historial real de eventos oficiales.',
+   key_label:'App Token datos.gov.co (mismo de INVIAS)',url:'https://datos.gov.co',
+   instrucciones:'Usa el mismo App Token de datos.gov.co que usas para INVIAS:\n1. datos.gov.co → Registrarse\n2. Mi perfil → App Tokens → Crear (o reutilizar INVIAS)\n3. Pegar aquí y probar'},
+  {id:'ISAGEN',n:'Isagen — Embalses Miel I, Jaguas y Porce',ico:'⚡',estado:'nd',tipo:'INSTITUCIONAL_CONFIG',
+   desc:'Nivel en tiempo real de embalses Miel I, Jaguas y Porce en Antioquia. Riesgo de creciente o liberación ante lluvias extremas corriente abajo.',
+   campos:[
+     {id:'isagen_tipo',lbl:'Tipo de acceso Isagen',tipo:'select',opciones:['','token — Token API Isagen']},
+     {id:'isagen_token',lbl:'Token API Isagen',tipo:'password',ph:'Token entregado por Isagen'},
+     {id:'isagen_url',lbl:'URL base API Isagen',tipo:'text',ph:'https://www.isagen.com.co/api/embalses'},
+   ],
+   instrucciones:'Contactar Isagen para solicitar acceso API de monitoreo:\n  comunicaciones@isagen.com.co\n  Tel: (604) 576 1212\n  Calle 12 Sur No. 18-168 Medellín\n\nSolicitar: API niveles en tiempo real Miel I, Jaguas y Porce.'},
+  {id:'GLOFAS',n:'GloFAS (Copernicus) — Pronóstico Inundaciones',ico:'🌊',estado:'nd',tipo:'KEY_GRATIS',
+   desc:'Pronóstico de inundaciones 15-30 días en ríos Cauca, Magdalena y Porce. Sistema europeo Copernicus de alarma temprana. Mayor impacto en precisión IRG.',
+   key_label:'CDS API Key (Copernicus Climate Data Store)',url:'https://cds.climate.copernicus.eu',
+   instrucciones:'GloFAS requiere acceso a través de la API CDS de Copernicus (Python).\nSe recomienda activar en el backend de OMAIRA:\n1. cds.climate.copernicus.eu → Registrarse (gratis)\n2. Mi perfil → API Key → Copiar\n3. Aceptar términos GloFAS dataset\n4. Configurar en backend/app/services/\n\nContacto soporte: copernicus-support@ecmwf.int'},
 ];
 
 // ═══════════════════════════════════════════════════════════
@@ -2277,7 +2317,8 @@ async function obtenerReales(z){
   const _custom_promise = consultarFuentesCustom().catch(()=>({}));
   const res={ts:ahora,zona:z,fuentes_activas:[],fuentes_error:[],
     openmeteo:null,sismos:[],vuelos:[],incendios:[],
-    windy:null,tomorrow:null,owm:null,invias:[]};
+    windy:null,tomorrow:null,owm:null,invias:[],
+    openaq:null,sgc_iris:[],gdacs:null,reliefweb:null,metar:null,waqi:null,dane:null,ungrd:null};
   // Todas en paralelo — ninguna bloquea a las demás
   await Promise.allSettled([
     (async()=>{try{res.openmeteo=await apiOpenMeteo(m.lat,m.lon);res.fuentes_activas.push('Open-Meteo');}catch(e){res.fuentes_error.push('Open-Meteo:'+e.message);}})(),
@@ -2324,6 +2365,15 @@ async function obtenerReales(z){
     (async()=>{if(epmCfg.tipo)try{res.epm=await apiEPM();if(res.epm)res.fuentes_activas.push('EPM');}catch(e){res.fuentes_error.push('EPM:'+e.message);}})(),
     (async()=>{if(ideamCfg.tipo)try{res.ideam=await apiIDEAM(z);if(res.ideam)res.fuentes_activas.push('IDEAM');}catch(e){res.fuentes_error.push('IDEAM:'+e.message);}})(),
     (async()=>{if(cornareCfg.tipo)try{res.cornare=await apiCORNARE(z);if(res.cornare)res.fuentes_activas.push('CORNARE');}catch(e){res.fuentes_error.push('CORNARE:'+e.message);}})(),
+    // ── Nuevas fuentes ─────────────────────────────────────────
+    (async()=>{try{res.openaq=await apiOpenAQ(m.lat,m.lon);if(res.openaq?.pm25!=null)res.fuentes_activas.push('OpenAQ');}catch(e){res.fuentes_error.push('OpenAQ:'+e.message);}})(),
+    (async()=>{try{res.sgc_iris=await apiIRIS_SGC();if(res.sgc_iris?.length)res.fuentes_activas.push('IRIS-SGC');}catch(e){res.fuentes_error.push('SGC:'+e.message);}})(),
+    (async()=>{try{res.gdacs=await apiGDACS();if(res.gdacs?.alertas_col>0)res.fuentes_activas.push('GDACS');}catch(e){res.fuentes_error.push('GDACS:'+e.message);}})(),
+    (async()=>{try{res.reliefweb=await apiReliefWeb();if(res.reliefweb?.total>0)res.fuentes_activas.push('ReliefWeb');}catch(e){res.fuentes_error.push('ReliefWeb:'+e.message);}})(),
+    (async()=>{try{res.metar=await apiAerocivil();if(res.metar?.icao)res.fuentes_activas.push('METAR-'+res.metar.icao);}catch(e){res.fuentes_error.push('METAR:'+e.message);}})(),
+    (async()=>{const k=apiKeys['WAQI']||'';if(k)try{res.waqi=await apiWAQI(m.lat,m.lon,k);if(res.waqi?.aqi>0)res.fuentes_activas.push('WAQI');}catch(e){res.fuentes_error.push('WAQI:'+e.message);}})(),
+    (async()=>{const k=apiKeys['DANE_API']||apiKeys['INVIAS']||'';if(k)try{res.dane=await apiDANE(k);if(res.dane?.municipios>0)res.fuentes_activas.push('DANE');}catch(e){res.fuentes_error.push('DANE:'+e.message);}})(),
+    (async()=>{const k=apiKeys['UNGRD_EVENTOS']||apiKeys['INVIAS']||'';if(k)try{res.ungrd=await apiUNGRD(k);if(res.ungrd!=null)res.fuentes_activas.push('UNGRD');}catch(e){res.fuentes_error.push('UNGRD:'+e.message);}})(),
   ]);
   cache[z]=res;
   return res;
@@ -2537,6 +2587,52 @@ function construirSensores(z,dr){
   // ── Fuentes personalizadas del usuario ──────────────────────
   if(dr?._custom_resultados){
     integrarFuentesCustomEnSensores(dr._custom_resultados, s, rf);
+  }
+
+  // ── OpenAQ: PM2.5/PM10 reales (complementa SIATA) ───────────
+  if(dr?.openaq?.pm25!=null){
+    s.pm25=+dr.openaq.pm25.toFixed(1);
+    if(!rf.ica)s.ica=+Math.min(99,dr.openaq.pm25).toFixed(1);
+    else s.ica=+Math.max(s.ica,Math.min(99,dr.openaq.pm25)).toFixed(1);
+    rf.pm25=true; rf.openaq=true;
+  }
+  // ── WAQI: AQI estandarizado global ──────────────────────────
+  if(dr?.waqi?.aqi>0){
+    const aqi_n=+Math.min(99,dr.waqi.aqi/5.1).toFixed(1);
+    s.ica=+Math.max(s.ica||0,aqi_n).toFixed(1); rf.ica=true;
+    if(dr.waqi.pm25!=null)s.pm25=+Math.max(s.pm25||0,dr.waqi.pm25).toFixed(1);
+  }
+  // ── IRIS/SGC: sismos M≥1.5 Colombia (amplía catálogo USGS) ──
+  if(dr?.sgc_iris?.length>0){
+    const e_iris=dr.sgc_iris.reduce((sum,sm)=>sum+Math.pow(10,1.5*(sm.mag||0)+4.8),0);
+    s.sismicidad_72h=+Math.max(s.sismicidad_72h||0,Math.min(1,e_iris/1e14)).toFixed(4);
+    rf.sismicidad_72h=true;
+  }
+  // ── GDACS: señal de alerta internacional en Colombia ─────────
+  if(dr?.gdacs?.alertas_col>0){
+    s.gdacs_nivel=dr.gdacs.nivel_max||1; rf.gdacs=true;
+  }
+  // ── METAR: visibilidad y viento reales de aeropuerto cercano ─
+  if(dr?.metar){
+    if(dr.metar.visib_m>0){
+      s.visib=+Math.min(s.visib||10000,dr.metar.visib_m).toFixed(0); rf.visib=true;
+    }
+    if(dr.metar.viento_ms>0){
+      s.viento=+Math.max(s.viento||0,dr.metar.viento_ms).toFixed(1); rf.viento=true;
+    }
+    if(dr.metar.temp!=null&&!rf.temp){
+      s.temp=dr.metar.temp; rf.temp=true;
+    }
+  }
+  // ── DANE: vulnerabilidad social del municipio activo ─────────
+  if(dr?.dane?.mapa_ipm){
+    const nom_m=(MUNICIPIOS.find(x=>x.id===z)||{}).n||'';
+    const ipm=dr.dane.mapa_ipm[nom_m.toLowerCase()]||dr.dane.mapa_ipm[z]||null;
+    if(ipm!=null){s.ipm_dane=+ipm.toFixed(1); rf.dane=true;}
+  }
+  // ── UNGRD: eventos recientes en Antioquia ────────────────────
+  if(dr?.ungrd?.eventos_recientes>0){
+    s.ungrd_eventos=dr.ungrd.eventos_recientes; rf.ungrd=true;
   }
 
   // ── Fin integración fuentes adicionales ─────────────────────
@@ -3377,6 +3473,154 @@ async function apiArcGISDAGRAN(){
   }catch(e){console.warn('ArcGIS DAGRAN:',e.message);return null;}
 }
 
+// ═══════════════════════════════════════════════════════════
+// NUEVAS APIs — OpenAQ · IRIS/SGC · GDACS · ReliefWeb · METAR · WAQI · DANE · UNGRD
+// ═══════════════════════════════════════════════════════════
+
+async function apiOpenAQ(lat,lon){
+  const url=`https://api.openaq.org/v2/measurements?coordinates=${lat},${lon}&radius=80000&parameter=pm25,pm10,no2&limit=100&sort=desc&order_by=datetime`;
+  try{
+    const r=await fetchConCORS(url,{headers:{'accept':'application/json'},signal:AbortSignal.timeout(12000)});
+    if(!r?.ok)return null;
+    const d=await r.json();
+    if(!d.results?.length)return null;
+    const byP=p=>d.results.filter(x=>x.parameter===p&&x.value>0&&x.value<500);
+    const avg=arr=>arr.length?+(arr.reduce((a,b)=>a+b.value,0)/arr.length).toFixed(1):null;
+    const pm25v=avg(byP('pm25')),pm10v=avg(byP('pm10')),no2v=avg(byP('no2'));
+    return{pm25:pm25v,pm10:pm10v,no2:no2v,
+      estaciones:new Set(d.results.map(x=>x.location)).size,fuente:'OpenAQ'};
+  }catch(e){return null;}
+}
+
+async function apiIRIS_SGC(){
+  const start=new Date(Date.now()-72*3600000).toISOString().slice(0,19);
+  const url=`https://service.iris.edu/fdsnws/event/1/query?format=geojson`+
+    `&minlatitude=4&maxlatitude=9&minlongitude=-78&maxlongitude=-72`+
+    `&minmagnitude=1.5&limit=40&orderby=time&starttime=${start}`;
+  try{
+    const r=await fetchConCORS(url,{signal:AbortSignal.timeout(12000)});
+    if(!r?.ok)return [];
+    const d=await r.json();
+    return(d.features||[]).map(f=>({mag:f.properties.mag,
+      lugar:f.properties.place,lat:f.geometry.coordinates[1],
+      lon:f.geometry.coordinates[0],prof:f.geometry.coordinates[2],
+      ts:f.properties.time,fuente:'IRIS'}));
+  }catch(e){return [];}
+}
+
+async function apiGDACS(){
+  const hoy=new Date(),hace7=new Date(Date.now()-7*86400000);
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const baseUrl=`https://www.gdacs.org/gdacsapi/api/events/geteventlist/eventtype/EQ,FL,DR/fromDate/${fmt(hace7)}/toDate/${fmt(hoy)}/alertlevel/green,orange,red/country/COL`;
+  const urls=['http://localhost:8080/proxy/gdacs',baseUrl,`https://corsproxy.io/?${encodeURIComponent(baseUrl)}`];
+  for(const u of urls){
+    try{
+      const r=await fetch(u,{signal:AbortSignal.timeout(8000)});
+      if(!r.ok)continue;
+      const d=await r.json();
+      const eventos=Array.isArray(d.features)?d.features:Array.isArray(d)?d:[];
+      if(!eventos.length&&!Array.isArray(d))continue;
+      const col=eventos.filter(e=>{const p=e.properties||e;return(p.country||p.iso3||'').includes('COL');});
+      const nvMax=col.reduce((mx,e)=>{const al=(e.properties?.alertlevel||e.alertlevel||'green').toLowerCase();return Math.max(mx,al==='red'?3:al==='orange'?2:1);},0);
+      return{alertas_col:col.length,nivel_max:nvMax,
+        eventos:col.slice(0,5).map(e=>({tipo:e.properties?.eventtype||e.eventtype||'EQ',
+          nombre:e.properties?.eventname||e.eventname||'Evento Colombia',
+          alerta:(e.properties?.alertlevel||e.alertlevel||'green').toLowerCase(),
+          fecha:e.properties?.fromdate||e.fromdate||''}))};
+    }catch(e){}
+  }
+  return null;
+}
+
+async function apiReliefWeb(){
+  const body=JSON.stringify({filter:{field:'country.iso3',value:'COL'},
+    fields:{include:['name','status','type.name','glide','date']},limit:5,sort:['date:desc']});
+  const urls=['http://localhost:8080/proxy/reliefweb','https://api.reliefweb.int/v1/disasters?appname=omaira'];
+  for(const u of urls){
+    try{
+      const r=await fetch(u,{method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body,signal:AbortSignal.timeout(10000)});
+      if(!r.ok)continue;
+      const d=await r.json();
+      const items=(d.data||[]).map(x=>({
+        nombre:x.fields?.name||'Desastre Colombia',estado:x.fields?.status||'ongoing',
+        tipo:x.fields?.type?.[0]?.name||'Desastre',glide:x.fields?.glide||'',
+        fecha:x.fields?.date?.original||''}));
+      return{total:d.totalCount||items.length,items};
+    }catch(e){}
+  }
+  return null;
+}
+
+async function apiAerocivil(){
+  const url='https://aviationweather.gov/api/data/metar?ids=SKRG,SKMD,SKLC&format=json&hours=3';
+  try{
+    const r=await fetchConCORS(url,{signal:AbortSignal.timeout(10000)});
+    if(!r?.ok)return null;
+    const d=await r.json();
+    if(!Array.isArray(d)||!d.length)return null;
+    const pref=['SKRG','SKMD','SKLC'];
+    const metar=pref.reduce((m,id)=>m||d.find(x=>x.icaoId===id),null)||d[0];
+    return{
+      icao:metar.icaoId,
+      visib_m:metar.visib!=null?+Math.min(20000,parseFloat(metar.visib)*1609.34).toFixed(0):null,
+      viento_ms:metar.wspd!=null?+(metar.wspd*0.5144).toFixed(1):null,
+      temp:metar.temp!=null?+parseFloat(metar.temp).toFixed(1):null,
+      presion:metar.altim!=null?+(metar.altim*33.8639).toFixed(1):null,
+      condicion:metar.wxString||'',nubes:metar.clouds||[],raw:metar.rawOb||''};
+  }catch(e){return null;}
+}
+
+async function apiWAQI(lat,lon,key){
+  if(!key)return null;
+  const url=`https://api.waqi.info/feed/geo:${lat};${lon}/?token=${key}`;
+  try{
+    const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
+    if(!r.ok)return null;
+    const d=await r.json();
+    if(d.status!=='ok'||!d.data)return null;
+    return{aqi:d.data.aqi,ciudad:d.data.city?.name||'',
+      pm25:d.data.iaqi?.pm25?.v||null,pm10:d.data.iaqi?.pm10?.v||null,
+      no2:d.data.iaqi?.no2?.v||null,o3:d.data.iaqi?.o3?.v||null};
+  }catch(e){return null;}
+}
+
+async function apiDANE(key){
+  if(!key)return null;
+  const url=`https://www.datos.gov.co/resource/w3yb-cmgr.json?$$app_token=${key}&departamento=Antioquia&$limit=125&$select=municipio,ipm,poblacion`;
+  try{
+    const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+    if(!r.ok)return null;
+    const d=await r.json();
+    if(!Array.isArray(d)||!d.length)return null;
+    // Construir mapa municipio→IPM para usarlo en cálculo de vulnerabilidad
+    const mapa={};
+    d.forEach(row=>{
+      const nom=(row.municipio||'').toLowerCase().trim();
+      const ipm=parseFloat(row.ipm||row.incidencia_ipm||0);
+      if(nom&&!isNaN(ipm))mapa[nom]=ipm;
+    });
+    return{municipios:Object.keys(mapa).length,mapa_ipm:mapa,fuente:'DANE-IPM'};
+  }catch(e){return null;}
+}
+
+async function apiUNGRD(key){
+  if(!key)return null;
+  const fechaLim=new Date(Date.now()-30*86400000).toISOString().slice(0,10);
+  const url=`https://www.datos.gov.co/resource/7xjw-s8ed.json?$$app_token=${key}&departamento=ANTIOQUIA&$limit=50&$order=fecha_ocurrencia DESC&$where=fecha_ocurrencia>'${fechaLim}'`;
+  try{
+    const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+    if(!r.ok)return null;
+    const d=await r.json();
+    if(!Array.isArray(d))return null;
+    return{eventos_recientes:d.length,
+      tipos:[...new Set(d.map(e=>e.tipo_evento||e.evento||'?'))].slice(0,6),
+      muertos:d.reduce((s,e)=>s+(parseInt(e.muertos||0)||0),0),
+      damnificados:d.reduce((s,e)=>s+(parseInt(e.damnificados||0)||0),0)};
+  }catch(e){return null;}
+}
+
 // Función para aplicar datos SAMA y Piragua a los sensores
 function aplicarSAMA_Piragua(s, rf, sama, piragua){
   if(sama){
@@ -3629,11 +3873,31 @@ async function cargarDatos(z){
   // Evaluar umbrales IDF DAGRAN independientemente
   const alertas_idf = evaluarUmbralesIDF(s.lluvia, api_actual, m.sub||'default');
   alertas_idf.forEach(a=>{if(!irg.alertas.find(x=>x.tipo===a.tipo))irg.alertas.push(a);});
+  // Alertas GDACS nivel naranja/rojo para Colombia
+  if(dr.gdacs?.eventos?.length){
+    dr.gdacs.eventos.filter(ev=>ev.alerta==='red'||ev.alerta==='orange').forEach(ev=>{
+      const nivel=ev.alerta==='red'?'rojo':'naranja';
+      if(!irg.alertas.find(x=>x.tipo==='GDACS-'+ev.tipo))
+        irg.alertas.push({tipo:'GDACS-'+ev.tipo,nivel,
+          msg:`🌐 GDACS: ${ev.nombre} — Alerta ${ev.alerta.toUpperCase()} ONU`});
+    });
+  }
+  // Alertas ReliefWeb activas en Colombia
+  if(dr.reliefweb?.items?.length){
+    dr.reliefweb.items.filter(ev=>ev.estado==='ongoing').slice(0,2).forEach(ev=>{
+      if(!irg.alertas.find(x=>x.tipo==='RW-'+ev.tipo))
+        irg.alertas.push({tipo:'RW-'+ev.tipo,nivel:'amarillo',
+          msg:`🆘 ReliefWeb: ${ev.nombre} (${ev.tipo})`});
+    });
+  }
   return{zona:z,muni:m.n,lat:m.lat,lon:m.lon,sub:m.sub,pop:m.pop,alt:m.alt,
     rel:m.rel,agua:m.agua,cob:m.cob,s,real_flags:rf,irg,riesgos,
     dr_raw:dr, // snapshot completo de datos raw para outcomes automáticos
     sismos:dr.sismos||[],vuelos:dr.vuelos||[],incendios:dr.incendios||[],tomtom:dr.tomtom||null,
     sama:dr.sama||null,piragua:dr.piragua||null,
+    openaq:dr.openaq||null,sgc_iris:dr.sgc_iris||[],gdacs:dr.gdacs||null,
+    reliefweb:dr.reliefweb||null,metar:dr.metar||null,waqi:dr.waqi||null,
+    ungrd:dr.ungrd||null,dane:dr.dane||null,
     api_valor:api_actual,api_nivel:nivelAPI(api_actual),
     factor_turismo:getFactorTurismo(new Date()),
     reportes_ciudadanos:getReportesActivos(z),
