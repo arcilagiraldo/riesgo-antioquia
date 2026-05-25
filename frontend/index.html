@@ -1240,7 +1240,7 @@ main{flex:1;display:flex;overflow:hidden}
       <tr><td><strong>IRIS / SGC Colombia</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Sismos Colombia M≥1.5 red IRIS — detecta eventos más pequeños que USGS, mejor acumulación energética 72h</td><td>Riesgo sísmico local</td></tr>
       <tr><td><strong>ADS-B Exchange</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Vuelos sobre Antioquia: aerolínea, altitud, velocidad → restricción aérea de rescate</td><td>Actividad aérea</td></tr>
       <tr><td><strong>NOAA ONI (ENSO)</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Índice Oscilación Sur real: fase El Niño / La Niña / Neutro → amplificador climático F</td><td>Factor climático global</td></tr>
-      <tr><td><strong>OpenAQ — Calidad Aire</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>PM2.5, PM10, NO₂ de estaciones reales en Medellín/Antioquia → sensor ICA calidad aire</td><td>Calidad del aire</td></tr>
+      <tr><td><strong>OpenAQ — Calidad Aire</strong></td><td><span class="real-badge" style="background:#1e40af20;color:#1e40af">🔑 Key gratis</span></td><td>PM2.5, PM10, NO₂ de estaciones reales en Medellín/Antioquia → sensor ICA calidad aire</td><td>Calidad del aire</td></tr>
       <tr><td><strong>GDACS (ONU) Alertas</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Alertas multi-amenaza ONU nivel naranja/rojo en Colombia → inyectadas en panel Alertas</td><td>Alerta internacional</td></tr>
       <tr><td><strong>ReliefWeb (OCHA) Colombia</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Emergencias humanitarias activas en Colombia curadas por OCHA/ONU → panel Alertas</td><td>Contexto humanitario</td></tr>
       <tr><td><strong>Aerocivil METAR</strong></td><td><span class="real-badge real-ok">Automática · Gratis</span></td><td>Visibilidad y viento reales aeropuertos SKRG (Rionegro) y SKMD (Olaya Herrera) → niebla aeronáutica</td><td>Meteorología aeroportuaria</td></tr>
@@ -1718,12 +1718,12 @@ const FUENTES_CONF=[
    ],
    instrucciones:'ACCESO GRATUITO — sin convenio:\n  1. Ir a geodatos-gobantioquia.opendata.arcgis.com\n  2. Buscar "riesgo", "amenaza" o "DAGRAN"\n  3. Abrir el dataset que necesites\n  4. Clic en botón "API" → copiar URL del Feature Service\n  5. Pegar esa URL en el campo de abajo\n\n⚠️ Las URLs exactas de los Feature Services\n   cambian con cada versión del portal.\n   Siempre obtenerlas directamente desde el portal.\n\nCapas disponibles (verificar en portal):\n  • Zonas de amenaza por inundación/deslizamiento\n  • Inventario histórico de desastres Antioquia\n  • Áreas de retiro hídrico\n  • Son datos HISTÓRICOS, no tiempo real'},
   // ── NUEVAS FUENTES ──────────────────────────────────────────
-  {id:'OPENAQ',n:'OpenAQ — Calidad del Aire',ico:'💨',estado:'ok',tipo:'SIN_KEY',
+  {id:'OPENAQ',n:'OpenAQ — Calidad del Aire',ico:'💨',estado:'ok',tipo:'KEY_GRATIS',
    desc:'PM2.5, PM10, NO₂ de estaciones reales en Medellín/Antioquia. Complementa SIATA cuando no hay convenio institucional.',
-   instrucciones:'Automática — sin costo ni registro. Red global de calidad del aire de acceso público.'},
-  {id:'IRIS_SGC',n:'IRIS/SGC — Sismos Colombia (M≥1.5)',ico:'📡',estado:'ok',tipo:'SIN_KEY',
-   desc:'Catálogo sísmico IRIS con eventos M≥1.5 en Antioquia. Detecta sismos más pequeños que USGS solo (M≥2.0) para mejor acumulación energética 72h.',
-   instrucciones:'Automática — sin costo ni registro. IRIS agrega datos de la red sísmica colombiana SGC.'},
+   instrucciones:'Registrarse gratis en explore.openaq.org → API Keys → copiar key aquí. Clave gratuita, sin límite de peticiones razonable.'},
+  {id:'IRIS_SGC',n:'EarthScope (IRIS) — Sismos Colombia (M≥1.5)',ico:'📡',estado:'ok',tipo:'SIN_KEY',
+   desc:'Catálogo sísmico EarthScope/IRIS con eventos M≥1.5 en Antioquia. Detecta sismos más pequeños que USGS solo (M≥2.0) para mejor acumulación energética 72h.',
+   instrucciones:'Automática — sin costo ni registro. EarthScope (antes IRIS) agrega datos de la red sísmica colombiana SGC.'},
   {id:'GDACS',n:'GDACS — Alertas Multi-amenaza ONU',ico:'🌐',estado:'ok',tipo:'SIN_KEY',
    desc:'Sistema global de alertas OCHA/ONU: inundaciones, sismos, ciclones, sequías. Cobertura Colombia tiempo real con nivel verde/naranja/rojo.',
    instrucciones:'Automática — sin costo ni registro. Sistema oficial de coordinación de desastres de la ONU.'},
@@ -2400,9 +2400,9 @@ async function obtenerReales(z){
     (async()=>{if(ideamCfg.tipo)try{res.ideam=await apiIDEAM(z);if(res.ideam)res.fuentes_activas.push('IDEAM');}catch(e){res.fuentes_error.push('IDEAM:'+e.message);}})(),
     (async()=>{if(cornareCfg.tipo)try{res.cornare=await apiCORNARE(z);if(res.cornare)res.fuentes_activas.push('CORNARE');}catch(e){res.fuentes_error.push('CORNARE:'+e.message);}})(),
     // ── Nuevas fuentes ─────────────────────────────────────────
-    (async()=>{try{res.openaq=await apiOpenAQ(m.lat,m.lon);if(res.openaq?.pm25!=null)res.fuentes_activas.push('OpenAQ');}catch(e){res.fuentes_error.push('OpenAQ:'+e.message);}})(),
+    (async()=>{const k=apiKeys['OPENAQ']||'';if(k)try{res.openaq=await apiOpenAQ(m.lat,m.lon,k);if(res.openaq?.pm25!=null)res.fuentes_activas.push('OpenAQ');}catch(e){res.fuentes_error.push('OpenAQ:'+e.message);}})(),
     (async()=>{try{res.sgc_iris=await apiIRIS_SGC();if(res.sgc_iris?.length)res.fuentes_activas.push('IRIS-SGC');}catch(e){res.fuentes_error.push('SGC:'+e.message);}})(),
-    (async()=>{try{res.gdacs=await apiGDACS();if(res.gdacs?.alertas_col>0)res.fuentes_activas.push('GDACS');}catch(e){res.fuentes_error.push('GDACS:'+e.message);}})(),
+    (async()=>{try{res.gdacs=await apiGDACS();if(res.gdacs!=null)res.fuentes_activas.push('GDACS'+(res.gdacs.alertas_col>0?'('+res.gdacs.alertas_col+')':''));}catch(e){res.fuentes_error.push('GDACS:'+e.message);}})(),
     (async()=>{try{res.reliefweb=await apiReliefWeb();if(res.reliefweb?.total>0)res.fuentes_activas.push('ReliefWeb');}catch(e){res.fuentes_error.push('ReliefWeb:'+e.message);}})(),
     (async()=>{try{res.metar=await apiAerocivil();if(res.metar?.icao)res.fuentes_activas.push('METAR-'+res.metar.icao);}catch(e){res.fuentes_error.push('METAR:'+e.message);}})(),
     (async()=>{const k=apiKeys['WAQI']||'';if(k)try{res.waqi=await apiWAQI(m.lat,m.lon,k);if(res.waqi?.aqi>0)res.fuentes_activas.push('WAQI');}catch(e){res.fuentes_error.push('WAQI:'+e.message);}})(),
@@ -3511,10 +3511,12 @@ async function apiArcGISDAGRAN(){
 // NUEVAS APIs — OpenAQ · IRIS/SGC · GDACS · ReliefWeb · METAR · WAQI · DANE · UNGRD
 // ═══════════════════════════════════════════════════════════
 
-async function apiOpenAQ(lat,lon){
-  const url=`https://api.openaq.org/v2/measurements?coordinates=${lat},${lon}&radius=80000&parameter=pm25,pm10,no2&limit=100&sort=desc&order_by=datetime`;
+async function apiOpenAQ(lat,lon,key){
+  if(!key)return null;
+  // OpenAQ v3 — requiere API key gratuita de explore.openaq.org
+  const url=`https://api.openaq.org/v3/measurements?coordinates=${lat},${lon}&radius=80000&parameters_id=2,1,7&limit=100&sort_order=desc&order_by=datetime`;
   try{
-    const r=await fetchConCORS(url,{headers:{'accept':'application/json'},signal:AbortSignal.timeout(12000)});
+    const r=await fetchConCORS(url,{headers:{'accept':'application/json','X-API-Key':key},signal:AbortSignal.timeout(12000)});
     if(!r?.ok)return null;
     const d=await r.json();
     if(!d.results?.length)return null;
@@ -3527,40 +3529,54 @@ async function apiOpenAQ(lat,lon){
 }
 
 async function apiIRIS_SGC(){
+  // EarthScope FDSNWS (sucesor de IRIS) — format=text porque geojson no soportado
   const start=new Date(Date.now()-72*3600000).toISOString().slice(0,19);
-  const url=`https://service.iris.edu/fdsnws/event/1/query?format=geojson`+
+  const url=`https://service.earthscope.org/fdsnws/event/1/query?format=text`+
     `&minlatitude=4&maxlatitude=9&minlongitude=-78&maxlongitude=-72`+
     `&minmagnitude=1.5&limit=40&orderby=time&starttime=${start}`;
   try{
     const r=await fetchConCORS(url,{signal:AbortSignal.timeout(12000)});
     if(!r?.ok)return [];
-    const d=await r.json();
-    return(d.features||[]).map(f=>({mag:f.properties.mag,
-      lugar:f.properties.place,lat:f.geometry.coordinates[1],
-      lon:f.geometry.coordinates[0],prof:f.geometry.coordinates[2],
-      ts:f.properties.time,fuente:'IRIS'}));
+    const txt=await r.text();
+    // Columnas: EventID|Time|Lat|Lon|Depth|Author|Catalog|Contributor|ContribID|MagType|Mag|MagAuthor|Location
+    return txt.split('\n').filter(l=>l&&!l.startsWith('#')).map(line=>{
+      const p=line.split('|');
+      if(p.length<11)return null;
+      return{mag:parseFloat(p[10])||0,lugar:(p[12]||'Colombia').trim(),
+        lat:parseFloat(p[2]),lon:parseFloat(p[3]),prof:parseFloat(p[4]),
+        ts:new Date(p[1]).getTime(),fuente:'EarthScope'};
+    }).filter(Boolean);
   }catch(e){return [];}
 }
 
 async function apiGDACS(){
-  const hoy=new Date(),hace7=new Date(Date.now()-7*86400000);
-  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const baseUrl=`https://www.gdacs.org/gdacsapi/api/events/geteventlist/eventtype/EQ,FL,DR/fromDate/${fmt(hace7)}/toDate/${fmt(hoy)}/alertlevel/green,orange,red/country/COL`;
-  const urls=['http://localhost:8080/proxy/gdacs',baseUrl,`https://corsproxy.io/?${encodeURIComponent(baseUrl)}`];
+  // API JSON de GDACS está rota — usar RSS feed público que siempre funciona
+  const rssUrl='https://www.gdacs.org/xml/rss.xml';
+  const urls=['http://localhost:8080/proxy/gdacs-rss',rssUrl,`https://corsproxy.io/?${encodeURIComponent(rssUrl)}`];
+  const getTag=(txt,tag)=>{const m=txt.match(new RegExp(`<(?:gdacs:|geo:)?${tag}>([^<]+)<`));return m?m[1].trim():'';};
   for(const u of urls){
     try{
-      const r=await fetch(u,{signal:AbortSignal.timeout(8000)});
+      const r=await fetch(u,{signal:AbortSignal.timeout(10000)});
       if(!r.ok)continue;
-      const d=await r.json();
-      const eventos=Array.isArray(d.features)?d.features:Array.isArray(d)?d:[];
-      if(!eventos.length&&!Array.isArray(d))continue;
-      const col=eventos.filter(e=>{const p=e.properties||e;return(p.country||p.iso3||'').includes('COL');});
-      const nvMax=col.reduce((mx,e)=>{const al=(e.properties?.alertlevel||e.alertlevel||'green').toLowerCase();return Math.max(mx,al==='red'?3:al==='orange'?2:1);},0);
-      return{alertas_col:col.length,nivel_max:nvMax,
-        eventos:col.slice(0,5).map(e=>({tipo:e.properties?.eventtype||e.eventtype||'EQ',
-          nombre:e.properties?.eventname||e.eventname||'Evento Colombia',
-          alerta:(e.properties?.alertlevel||e.alertlevel||'green').toLowerCase(),
-          fecha:e.properties?.fromdate||e.fromdate||''}))};
+      const txt=await r.text();
+      const items=(txt.match(/<item>[\s\S]*?<\/item>/g)||[]);
+      if(!items.length)continue;
+      // Filtrar Colombia por bounding box (lat 0-12, lon -80 a -66)
+      const col=items.filter(item=>{
+        const lat=parseFloat(getTag(item,'lat')||'999');
+        const lon=parseFloat(getTag(item,'long')||'999');
+        return lat>=0&&lat<=12&&lon>=-80&&lon<=-66;
+      });
+      const nvMax=col.reduce((mx,item)=>{
+        const al=(getTag(item,'alertlevel')||'Green').toLowerCase();
+        return Math.max(mx,al==='red'?3:al==='orange'?2:1);
+      },0);
+      return{alertas_col:col.length,nivel_max:nvMax,total_global:items.length,
+        eventos:col.slice(0,5).map(item=>({
+          tipo:getTag(item,'eventtype')||'EQ',
+          nombre:(item.match(/<title>([^<]+)<\/title>/)||[])[1]||'Evento Colombia',
+          alerta:(getTag(item,'alertlevel')||'Green').toLowerCase(),
+          fecha:getTag(item,'fromdate')||''}))};
     }catch(e){}
   }
   return null;
